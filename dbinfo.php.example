@@ -1,0 +1,23 @@
+<?php
+## $username="username";
+## $password="password";
+## $database="username-databaseName";
+
+$hostname="db_host";
+$username="db_user";
+$password="db_passwrd";
+$database="db_name";
+
+$link = mysqli_connect($hostname, $username, $password, $database);
+if (mysqli_connect_errno()) {
+   die("Connect failed: %s\n" + mysqli_connect_error());
+   exit();
+}
+
+function mysqli_result($res, $row, $field=0) {
+    $res->data_seek($row);
+    $datarow = $res->fetch_array();
+    return $datarow[$field];
+}
+
+?>
