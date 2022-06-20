@@ -12,29 +12,57 @@ require_once("locations.php");
     <style type="text/css">
       html,body { height: 98%; margin: 0px; padding: 6px; }
       #map { height: 100% }
-    </style>
+	  .aligncenter { text-align: center; }
+	  .custom-popup .leaflet-popup-content-wrapper { font-size: 100%; }
+	</style>
     <script type="text/javascript">
 </script>
   </head>
   <body>
+
     <div id="map"></div>
-<!--    <button id="mapfruit" onclick="window.location.href='leaflet.php'">Map</button>
--->
-
     <script type="text/javascript">
-	var map = L.map('map').setView([51.505, -0.09], 13);
+    var result = L.latLng(0, 0);
 
-	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	    maxZoom: 19,
-	    attribution: '© OpenStreetMap'
-	}).addTo(map);
-	
-    	map.locate({setView: true, watch: false, maxZoom:18}).on('locationfound', function(e){
+	function getGeoIP() {
+        var url = "https://json.geoiplookup.io/";
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.onload = function () {
+            var status = xhr.status;
+            if (status == 200) {
+                var geoip_response = JSON.parse(xhr.responseText);
+                result.lat = geoip_response.latitude;
+                result.lng = geoip_response.longitude;
+            } else {
+                console.log("Leaflet.GeoLocation.getGeoIPPosition failed because its XMLHttpRequest got this response: " + xhr.status);
+            }
+        };
+        xhr.send();
+        return result;
+    }
+
+    try {
+    	getGeoIP();
+    }
+    catch(err) {
+    	console.log("GeoIP JS blocked by client or adblock");
+    	result.lat = 37.75;
+    	result.lng = -122.42;
+    }
+
+	var map = L.map('map').setView([result.lat, result.lng], 13);
+
+	var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+
+	var satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community' });
+
+	map.locate({setView: true, watch: false, maxZoom:18})
+		.on('locationfound', function(e){
             var marker = L.marker([e.latitude, e.longitude]).bindPopup('Current location');
             map.addLayer(marker);
         })
        .on('locationerror', function(e){
- //           console.log(e);
             alert("Location access denied.");
         });
 
@@ -46,160 +74,193 @@ require_once("locations.php");
     		}
 	});
 
-//        var orange = new FruitIcon({iconUrl: 'images/orange-icon.png'});
-
 	var icons = {
-		orange: new FruitIcon({iconUrl: 'images/orange-icon.png'}),
-		apple: new FruitIcon({iconUrl: 'images/apple-icon.png'}),
-		lemon: new FruitIcon({iconUrl: 'images/lemon-icon.png'}),
-		lime: new FruitIcon({iconUrl: 'images/lime-icon.png'}),
-		blackberry: new FruitIcon({iconUrl: 'images/blackberry-icon.png'}),
-		avocado: new FruitIcon({iconUrl: 'images/avocado-icon.png'}),
-		plum: new FruitIcon({iconUrl: 'images/plum-icon.png'}),
-		peach: new FruitIcon({iconUrl: 'images/peach-icon.png'}),
-		fig: new FruitIcon({iconUrl: 'images/fig-icon.png'}),
-		mandarin: new FruitIcon({iconUrl: 'images/mandarin-icon.png'}),
-		apricot: new FruitIcon({iconUrl: 'images/apricot-icon.png'}),
-		banana: new FruitIcon({iconUrl: 'images/banana-icon.png'}),
-		blueberry: new FruitIcon({iconUrl: 'images/blueberry-icon.png'}),
-		cherry: new FruitIcon({iconUrl: 'images/cherry-icon.png'}),
-		grape: new FruitIcon({iconUrl: 'images/grape-icon.png'}),
-		grapefruit: new FruitIcon({iconUrl: 'images/grapefruit-icon.png'}),
-		guava: new FruitIcon({iconUrl: 'images/guava-icon.png'}),
-		kiwi: new FruitIcon({iconUrl: 'images/kiwi-icon.png'}),
-		mango: new FruitIcon({iconUrl: 'images/mango-icon.png'}),
-		olive: new FruitIcon({iconUrl: 'images/olive-icon.png'}),
-		pear: new FruitIcon({iconUrl: 'images/pear-icon.png'}),
-		raspberry: new FruitIcon({iconUrl: 'images/raspberry-icon.png'}),
-		strawberry: new FruitIcon({iconUrl: 'images/strawberry-icon.png'}),
-		pomegranate: new FruitIcon({iconUrl: 'images/pomegranate-icon.png'})	
+		orange: new FruitIcon({iconUrl: 'images/orange.png'}),
+		apple: new FruitIcon({iconUrl: 'images/apple.png'}),
+		lemon: new FruitIcon({iconUrl: 'images/lemon.png'}),
+		lime: new FruitIcon({iconUrl: 'images/lime.png'}),
+		blackberry: new FruitIcon({iconUrl: 'images/blackberry.png'}),
+		avocado: new FruitIcon({iconUrl: 'images/avocado.png'}),
+		plum: new FruitIcon({iconUrl: 'images/plum.png'}),
+		peach: new FruitIcon({iconUrl: 'images/peach.png'}),
+		fig: new FruitIcon({iconUrl: 'images/fig.png'}),
+		mandarin: new FruitIcon({iconUrl: 'images/mandarin.png'}),
+		apricot: new FruitIcon({iconUrl: 'images/apricot.png'}),
+		banana: new FruitIcon({iconUrl: 'images/banana.png'}),
+		blueberry: new FruitIcon({iconUrl: 'images/blueberry.png'}),
+		cherry: new FruitIcon({iconUrl: 'images/cherry.png'}),
+		grape: new FruitIcon({iconUrl: 'images/grape.png'}),
+		grapefruit: new FruitIcon({iconUrl: 'images/grapefruit.png'}),
+		guava: new FruitIcon({iconUrl: 'images/guava.png'}),
+		kiwi: new FruitIcon({iconUrl: 'images/kiwi.png'}),
+		mango: new FruitIcon({iconUrl: 'images/mango.png'}),
+		olive: new FruitIcon({iconUrl: 'images/olive.png'}),
+		pear: new FruitIcon({iconUrl: 'images/pear.png'}),
+		raspberry: new FruitIcon({iconUrl: 'images/raspberry.png'}),
+		strawberry: new FruitIcon({iconUrl: 'images/strawberry.png'}),
+		pomegranate: new FruitIcon({iconUrl: 'images/pomegranate.png'})	
 	};
 
-	var tempMarker;
-	var tempLabel;
-	var tempAddress;
-	var tempArray = <?php echo $mapped_markers; ?>;
+	var markerFruitIcon;
+	var markerLabel;
+	var markerName;
+	var markerIcon;
+	var markerAddress;
+	var locationArray = <?php echo $mapped_markers; ?>;
+	var layerGroups = {};
+	var fruitList = [];
+	var layerTest = L.layerGroup();
+	var fruit_group;
 
-	function Addmarker(markerArray) {
-		for (var i = 0; i < markerArray.length; i++) {
-//			console.log(markerArray[i]);				
-			switch(markerArray[i]['type']) {
-				case "orange":
-					tempMarker = icons['orange'];
-					break;
-                                case "apple":
-                                        tempMarker = icons['apple'];
-                                        break;
-                                case "lemon":
-                                        tempMarker = icons['lemon'];
-                                        break;
-                                case "lime":
-                                        tempMarker = icons['lime'];
-                                        break;
-                                case "blackberry":
-                                        tempMarker = icons['blackberry'];
-                                        break;
-                                case "avocado":
-                                        tempMarker = icons['avocado'];
-                                        break;
-                                case "plum":
-                                        tempMarker = icons['plum'];
-                                        break;
-                                case "peach":
-                                        tempMarker = icons['peach'];
-                                        break;
-                                case "fig":
-                                        tempMarker = icons['fig'];
-                                        break;
-                                case "mandarin":
-                                        tempMarker = icons['mandarin'];
-                                        break;
-                                case "apricot":
-                                        tempMarker = icons['apricot'];
-                                        break;
-                                case "banana":
-					tempMarker = icons['banana'];
-					break;
-                                case "blueberry":
-                                        tempMarker = icons['blueberry'];
-                                        break;
-                                case "cherry":
-                                        tempMarker = icons['cherry'];
-                                        break;
-                                case "grape":
-                                        tempMarker = icons['grape'];
-                                        break;
-                                case "grapefruit":
-                                        tempMarker = icons['grapefruit'];
-                                        break;
-                                case "guava":
-                                        tempMarker = icons['guava'];
-                                        break;
-                                case "kiwi":
-                                        tempMarker = icons['kiwi'];
-                                        break;
-                                case "mango":
-                                        tempMarker = icons['mango'];
-                                        break;
-                                case "olive":
-                                        tempMarker = icons['olive'];
-                                        break;
-                                case "pear":
-                                        tempMarker = icons['pear'];
-                                        break;
-				case "raspberry":
-                                        tempMarker = icons['raspberry'];
-                                        break;
-                                case "strawberry":
-                                        tempMarker = icons['strawberry'];
-                                        break;
-                                case "pomegranate":
-                                        tempMarker = icons['pomegranate'];
-                                        break;
-				default:
-					tempMarker = icons['apple'];
-			}
-			if(markerArray[i]['address'] === "") {
-				tempAddress = "";
-			} else {
-				tempAddress = "<br><b>Address:</b> " + markerArray[i]['address'];
-			}
-			tempLabel = "<b>Name:</b> " + markerArray[i]['name'] + "<br><b>Fruit:</b> " + markerArray[i]['type'] + "<br><b>Location:</b> " + markerArray[i]['lat'] + ", " + markerArray[i]['lng'] + tempAddress;
-			L.marker([markerArray[i].lat, markerArray[i].lng],{icon: tempMarker}).addTo(map).bindPopup(tempLabel);		
-//		this[dynamicname + i] = L.marker(
-//           	[tempArray[i][0], tempArray[i][1]], {icon: redIcon}).addTo(map);
-    		}
-	}
 	
-	Addmarker(tempArray);
+	// Loop through and add all locations to the map, one by one
+	addMarkerArray(locationArray);
 
+	var baseMaps = {
+	    "Base": osm,
+	    "Satellite": satellite
+	};
+
+	var layerControl = L.control.layers(baseMaps, layerGroups).addTo(map);
 
 	var newMarker;
 	var latLng;	
-	var marker_lat;
-	var marker_lng;
+	var markerLat;
+	var markerLng;
 	var select_statement = '<select id="type">';
 
-	// Load selct statement
+
+	// Prepare selct statement
 	for (const [key, value] of Object.entries(icons)) {
 		select_statement += "<option>" + key + "</option>";
 	}	
 
 	select_statement += '</select>';
 
-	map.on('click', addMarker);
+	function addMarkerArray(markerArray) {
+		for (var i = 0; i < markerArray.length; i++) {
+			fruit_group = markerArray[i]['type'];				
+			switch(markerArray[i]['type']) {
+				case "orange":
+					markerFruitIcon = icons['orange'];
+					break;
+				case "apple":
+						markerFruitIcon = icons['apple'];
+						break;
+				case "lemon":
+						markerFruitIcon = icons['lemon'];
+						break;
+				case "lime":
+						markerFruitIcon = icons['lime'];
+						break;
+				case "blackberry":
+						markerFruitIcon = icons['blackberry'];
+						break;
+				case "avocado":
+						markerFruitIcon = icons['avocado'];
+						break;
+				case "plum":
+						markerFruitIcon = icons['plum'];
+						break;
+				case "peach":
+						markerFruitIcon = icons['peach'];
+						break;
+				case "fig":
+						markerFruitIcon = icons['fig'];
+						break;
+				case "mandarin":
+						markerFruitIcon = icons['mandarin'];
+						break;
+				case "apricot":
+						markerFruitIcon = icons['apricot'];
+						break;
+				case "banana":
+						markerFruitIcon = icons['banana'];
+						break;
+				case "blueberry":
+						markerFruitIcon = icons['blueberry'];
+						break;
+				case "cherry":
+						markerFruitIcon = icons['cherry'];
+						break;
+				case "grape":
+						markerFruitIcon = icons['grape'];
+						break;
+				case "grapefruit":
+						markerFruitIcon = icons['grapefruit'];
+						break;
+				case "guava":
+						markerFruitIcon = icons['guava'];
+						break;
+				case "kiwi":
+						markerFruitIcon = icons['kiwi'];
+						break;
+				case "mango":
+						markerFruitIcon = icons['mango'];
+						break;
+				case "olive":
+						markerFruitIcon = icons['olive'];
+						break;
+				case "pear":
+						markerFruitIcon = icons['pear'];
+						break;
+				case "raspberry":
+						markerFruitIcon = icons['raspberry'];
+						break;
+				case "strawberry":
+						markerFruitIcon = icons['strawberry'];
+						break;
+				case "pomegranate":
+						markerFruitIcon = icons['pomegranate'];
+						break;
+				default:
+					markerFruitIcon = icons['apple'];
+			}
 
-	function addMarker(e){
-		var popupContent = "<table><tr><td>Name</td><td><input type='text' id='name'/></td></tr><tr><td>Location details</td><td><input type='text' id='address'/></td></tr><tr><td>Type</td><td>" + select_statement + "</td></tr><td><input type='button' value='Save & Close' onclick='saveData()'/></td><td align='right'><input type='button' value='Delete' onclick='deleteData()'/></td></tr></table>";
+			if(markerArray[i]['address'] === "") {
+				markerAddress = "";
+			} else {
+				markerAddress = "<br><b>Address:</b> " + markerArray[i]['address'];
+			}
 
-		newMarker = new L.marker(e.latlng).addTo(map).bindPopup(popupContent,{keepInView: true, closeButton: false}).openPopup();
+			if(markerArray[i]['name'] === "") {
+				markerName = "<br>";
+			} else {
+				markerName = "<br><b>Name:</b> " + markerArray[i]['name'] + "<br>";
+			}
+
+			markerIcon = "<div class=\"aligncenter\"><img src=\"images/" + markerArray[i]['type'] + ".png\" width=\"32\" height=\"32\"><br></div>";
+
+			markerLabel = markerIcon + markerName + "<b>Fruit:</b> " + markerArray[i]['type'] + "<br><b>Location:</b> " + markerArray[i]['lat'] + ", " + markerArray[i]['lng'] + markerAddress;
+
+
+			try {
+				layerGroups[fruit_group].addLayer(L.marker([markerArray[i].lat, markerArray[i].lng],{icon: markerFruitIcon}).bindPopup(markerLabel));
+			} catch(err) {
+				fruitList.push(fruit_group);
+				layerGroups[fruit_group] = L.layerGroup();
+				layerGroups[fruit_group].addLayer(L.marker([markerArray[i].lat, markerArray[i].lng],{icon: markerFruitIcon}).bindPopup(markerLabel)).addTo(map);
+			}
+		}
+	}
+
+	map.on('click', addNewMarker);
+
+	function addNewMarker(e){
+		var customOptions =
+	    {
+	    'keepInView' : true,
+	    'className' : 'custom-popup',
+	    'closeButton' : false
+	    }
+
+		var popupContent = "<table><tr><td>Fruit details*</td><td><input type='text' id='name'/></td></tr><tr><td>Location details*</td><td><input type='text' id='address'/></td></tr><tr><td>Type</td><td>" + select_statement + "</td><tr><td>* = optional</td></tr><tr><td><input type='button' value='Save & Close' onclick='saveData()'/></td><td align='right'><input type='button' value='Delete' onclick='deleteData()'/></td></tr></table>";
+
+		newMarker = new L.marker(e.latlng).addTo(map).bindPopup(popupContent,customOptions).openPopup();
 		latLng = e.latlng;
-		marker_lat = latLng.lat;
-		marker_lng = latLng.lng;
-//		console.log(newMarker);
-		map.off('click',addMarker);		
-//	        fetch('./insert.php?lat='+latLng['lat']+'&lng='+latLng['lng'])
-
+		markerLat = latLng.lat;
+		markerLng = latLng.lng;
+		map.off('click',addNewMarker);		
 	};
 
 	function doNothing() {};
@@ -208,15 +269,12 @@ require_once("locations.php");
 		var request = window.ActiveXObject ?
 		new ActiveXObject('Microsoft.XMLHTTP') :
 		new XMLHttpRequest;
-
-	//        console.log(request);
 		request.onreadystatechange = function() {
 	  	if (request.readyState == 4) {
 	    		request.onreadystatechange = doNothing;
 	    		callback(request, request.status);
 	  	}
 		};
-
 		request.open('GET', url, true);
 		request.send(null);
 	}  
@@ -226,37 +284,31 @@ require_once("locations.php");
 		var address = escape(document.getElementById("address").value);
 		var type = document.getElementById("type").value;
 
-		if (name !== "" && address !== "" && type !== "") {
-//			console.log(name + " | " + address + " | " + type + " | " + marker_lat + " | " + marker_lng);
+//		if (name !== "" && address !== "" && type !== "") {
+		if (type !== "") {
+
 			map.closePopup();
 			var url = "addrecord.php?name=" + name + "&address=" + address +
-			"&type=" + type + "&lat=" + marker_lat + "&lng=" + marker_lng;
-//			console.log(url);
-	
+			"&type=" + type + "&lat=" + markerLat + "&lng=" + markerLng;	
 			downloadUrl(url, function(data, responseCode) {
 				if (responseCode == 200) {
-//					console.log("Success!");
 					window.location.reload();
-				//          document.getElementById("message").innerHTML = "Location added.";
 				}
 				else {
 //					console.log("failed to submit");
 				}
-		});
-//			window.location.reload();
+			});
 		}
 		else {
 			window.alert("Missing value");
-//			console.log("missing value");
 		}
 
     }
 
 	function deleteData() {
-//		console.log(newMarker);
 		map.removeLayer(newMarker);
 		map.closePopup();
-		map.on('click', addMarker);
+		map.on('click', addNewMarker);
 	}
 
     </script>
