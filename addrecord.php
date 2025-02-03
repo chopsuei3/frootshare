@@ -18,9 +18,11 @@ $sql = sprintf($query, mysqli_real_escape_string($link, $name), mysqli_real_esca
 $result = mysqli_query($link, $sql) or die("Error in Selecting " . mysqli_error($link));
 
 if (!$result) {
-  die('Invalid query: ' . mysql_error());
+  die('Invalid query: ' . mysqli_error());
 }
-
+//else {
+//	print_r($result);
+//}
 //close the db connection
 mysqli_close($link);
 ?>

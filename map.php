@@ -53,6 +53,8 @@ require_once("locations.php");
 	var newMarker;
 	var initialMarker;
 	var initialZoom;
+	var markerLat;
+	var markerLng;
 	var customOptions = {'keepInView' : true, 'className' : 'custom-popup', 'closeButton' : true};
 
 	// Prepare data for loops
@@ -157,6 +159,7 @@ require_once("locations.php");
 			markerLng = markerArray[i]['lng'];
 			markerGroup = markerArray[i]['type'];
 
+			//console.log(markerId);
 			// Check and replace missing values from db records -- not used
 			if(markerAddress === "") {
 				markerLabelAddress = "";
@@ -187,8 +190,9 @@ require_once("locations.php");
 		    'closeButton' : true
 		    }
 		var latLng = e.latlng;
-		var markerLat = latLng.lat;
-		var markerLng = latLng.lng;
+		markerLat = latLng.lat;
+		markerLng = latLng.lng;
+//		console.log(markerLat, markerLng);
 
 		var popupContent = "<table class='custom-table'><tr><td><b>Fruit*</b></td><td>" + select_statement + "</td></tr><tr><td>Name</td><td><input type='text' id='name' class='custom-input'></td></tr><tr><td>Description</td><td><input type='text' id='address' class='custom-input'></td></tr><tr><td><b>* Required</b></td></tr></table><input type='button' class='custom-button' value='Save & Close' onclick='saveData()'/><input type='button' class='custom-button' value='Delete' onclick='deleteData()'/>";
 
@@ -204,9 +208,11 @@ require_once("locations.php");
 		var address = escape(document.getElementById("address").value);
 		var type = document.getElementById("type").value;
 
+//		console.log(markerLat, markerLng);
 		if (type !== "") {
 			map.closePopup();
 			var url = "addrecord.php?name=" + name + "&address=" + address + "&type=" + type + "&lat=" + markerLat + "&lng=" + markerLng;	
+//			console.log(url);
 			downloadUrl(url, function(data, responseCode) {
 				if (responseCode == 200) {
 					window.location.reload();
